@@ -15,7 +15,112 @@ import 'package:impots_benin/app/modules/pageDocument/view/pageDocument.dart';
 import 'package:impots_benin/app/modules/pageEcheances/view/pageEcheances.dart';
 import 'package:impots_benin/app/modules/pageParametres/view/pageParametres.dart';
 import 'package:impots_benin/app/modules/pageSimulateur/view/pageSimulateur.dart';
+import 'package:impots_benin/app/modules/pageAccueil/view/page_detail_obligation.dart';
 
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import '/models/obligation.dart';
+import 'package:impots_benin/global.dart';
+
+Future<List<Obligation>> fetchObligations() async {
+  final storage = FlutterSecureStorage();
+  final token = await storage.read(key: 'auth_token');
+
+  final url = Uri.parse('${Global.baseUrl}/obligations');
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final jsonBody = json.decode(response.body);
+
+    // Accès à la clé 'data' qui contient la liste
+    final List<dynamic> data = jsonBody['data'];
+
+    return data.map((e) => Obligation.fromJson(e)).toList();
+  } else {
+    throw Exception('Erreur lors du chargement des obligations');
+  }
+}
+
+
+// ----- ObligationListComponent corrigé -----
+class ObligationListComponent extends StatelessWidget {
+  final String txt;
+  final String subtitle;
+  final String imageAsset;
+  final VoidCallback? onTap;
+
+  const ObligationListComponent({
+    required this.txt,
+    required this.subtitle,
+    required this.imageAsset,
+    this.onTap,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 0),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextComponents(
+                    txt: txt,
+                    color: Colors.black87,
+                    txtSize: 15,
+                    fw: FontWeight.bold,
+                    family: "Bold",
+                  ),
+                  const SizedBox(height: 5),
+                  TextComponents(
+                    txt: subtitle,
+                    color: Colors.grey[600]!,
+                    txtSize: 13,
+                    fw: FontWeight.normal,
+                    family: "Regular",
+                  ),
+                ],
+              ),
+            ),
+            Image.asset(
+              imageAsset,
+              width: 25,
+              height: 25,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ----- Pageaccueil et PageaccueilContent -----
 class Pageaccueil extends StatefulWidget {
   const Pageaccueil({super.key});
 
@@ -44,7 +149,7 @@ class _PageaccueilState extends State<Pageaccueil> {
             color: backgroundApp,
             child: _pages[_currentPage],
           ),
-          if (_currentPage == 0) // Affichage du bouton uniquement sur la page d'accueil
+          if (_currentPage == 0)
             Positioned(
               bottom: 20,
               right: 20,
@@ -92,11 +197,8 @@ class _PageaccueilState extends State<Pageaccueil> {
       ),
     );
   }
-
-
 }
 
-// CONTENU PRINCIPAL DE LA PAGE ACCUEIL
 class PageaccueilContent extends StatefulWidget {
   const PageaccueilContent({super.key});
 
@@ -107,11 +209,40 @@ class PageaccueilContent extends StatefulWidget {
 class _PageaccueilContentState extends State<PageaccueilContent> {
   TextEditingController _searchController = TextEditingController();
   int _currentIndex = 0;
+  List<Obligation> obligations = [];
+  bool isLoading = true;
 
   final List<String> imageList = [
     'assets/images/baniere.png',
     'assets/images/baniere3.png',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    loadObligations();
+  }
+
+  Future<void> loadObligations() async {
+  try {
+    final data = await fetchObligations();
+    print("Obligations reçues: ${data.length}");
+    for (var o in data) {
+      print(" - ${o.name} (${o.type})");
+    }
+    setState(() {
+      obligations = data;
+      isLoading = false;
+    });
+  } catch (e) {
+    print("Erreur: $e");
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +354,6 @@ class _PageaccueilContentState extends State<PageaccueilContent> {
                             );
                           },
                         ),
-
                       ],
                     )
                   ],
@@ -233,142 +363,120 @@ class _PageaccueilContentState extends State<PageaccueilContent> {
           ),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        height: 200,
-                        autoPlay: true,
-                        autoPlayInterval: const Duration(seconds: 4),
-                        enlargeCenterPage: true,
-                        viewportFraction: 1.0,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                      ),
-                      items: imageList.map((imagePath) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                imagePath,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              ),
-                            );
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: imageList.asMap().entries.map((entry) {
-                              return Container(
-                                width: 8.0,
-                                height: 8.0,
-                                margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _currentIndex == entry.key
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.5),
-                                ),
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          CarouselSlider(
+                            options: CarouselOptions(
+                              height: 200,
+                              autoPlay: true,
+                              autoPlayInterval: const Duration(seconds: 4),
+                              enlargeCenterPage: true,
+                              viewportFraction: 1.0,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
+                            ),
+                            items: imageList.map((imagePath) {
+                              return Builder(
+                                builder: (BuildContext context) {
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.asset(
+                                      imagePath,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    ),
+                                  );
+                                },
                               );
                             }).toList(),
                           ),
+                          Positioned(
+                            bottom: 10,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: imageList.asMap().entries.map((entry) {
+                                    return Container(
+                                      width: 8.0,
+                                      height: 8.0,
+                                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: _currentIndex == entry.key
+                                            ? Colors.white
+                                            : Colors.white.withOpacity(0.5),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const SizedBox(height: 20),
+                      AnimationLimiter(
+                        child: Column(
+                          children: obligations.map((obligation) {
+                            return AnimationConfiguration.staggeredList(
+                              position: obligations.indexOf(obligation),
+                              duration: const Duration(milliseconds: 400),
+                              child: SlideAnimation(
+                                verticalOffset: 50.0,
+                                child: FadeInAnimation(
+                                  child: Column(
+                                    children: [
+                                      ObligationListComponent(
+                                      txt: obligation.name,
+                                      subtitle: obligation.type,
+                                      imageAsset: 'assets/images/right.png',
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          PageRouteBuilder(
+                                            transitionDuration: const Duration(milliseconds: 400),
+                                            pageBuilder: (_, __, ___) => PageDetailObligation(obligation: obligation),
+                                            transitionsBuilder: (_, animation, __, child) {
+                                              return FadeTransition(
+                                                opacity: animation,
+                                                child: child,
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                TextComponents(
-                  txt: "Obligation 1",
-                  txtSize: 18,
-                  color: mainColor,
-                  family: "Bold",
-                  fw: FontWeight.bold,
-                ),
-                const SizedBox(height: 20),
-                AnimationLimiter(
-                  child: Column(
-                    children: List.generate(5, (index) {
-                      return AnimationConfiguration.staggeredList(
-                        position: index,
-                        duration: const Duration(milliseconds: 400),
-                        child: SlideAnimation(
-                          verticalOffset: 50.0,
-                          child: FadeInAnimation(
-                            child: Column(
-                              children: [
-                                ObligationListComponent(
-                                  txt: "Obligation 1-${index + 1}",
-                                  imageAsset: 'assets/images/right.png',
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                TextComponents(
-                  txt: "Obligation 2",
-                  txtSize: 18,
-                  color: mainColor,
-                  family: "Bold",
-                  fw: FontWeight.bold,
-                ),
-                const SizedBox(height: 20),
-                AnimationLimiter(
-                  child: Column(
-                    children: List.generate(4, (index) {
-                      return AnimationConfiguration.staggeredList(
-                        position: index,
-                        duration: const Duration(milliseconds: 400),
-                        child: SlideAnimation(
-                          verticalOffset: 50.0,
-                          child: FadeInAnimation(
-                            child: Column(
-                              children: [
-                                ObligationListComponent(
-                                  txt: "Obligation 2-${index + 1}",
-                                  imageAsset: 'assets/images/right.png',
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ],
     );

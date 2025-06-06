@@ -4,11 +4,13 @@ import 'package:impots_benin/app/components/text_components.dart';
 
 class ObligationListComponent extends StatelessWidget {
   final String txt;
+  final String? subtitle;      // <--- nouveau paramètre optionnel
   final String imageAsset;
   final VoidCallback? onTap;
 
   const ObligationListComponent({
     required this.txt,
+    this.subtitle,            // <--- ajouté ici
     required this.imageAsset,
     this.onTap,
     Key? key,
@@ -35,12 +37,27 @@ class ObligationListComponent extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: TextComponents(
-                txt: txt,
-                color: Colors.black87,
-                txtSize: 15,
-                fw: FontWeight.bold,
-                family: "Bold",
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextComponents(
+                    txt: txt,
+                    color: Colors.black87,
+                    txtSize: 15,
+                    fw: FontWeight.bold,
+                    family: "Bold",
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 5),
+                    TextComponents(
+                      txt: subtitle!,
+                      color: Colors.black54,
+                      txtSize: 13,
+                      fw: FontWeight.normal,
+                      family: "Regular",
+                    ),
+                  ],
+                ],
               ),
             ),
             Image.asset(

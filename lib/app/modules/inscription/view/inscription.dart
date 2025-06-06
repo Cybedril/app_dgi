@@ -5,6 +5,31 @@ import 'package:impots_benin/app/components/text_components.dart';
 import 'package:impots_benin/app/modules/connexion/view/connexion.dart';
 import 'package:impots_benin/app/modules/inscription/view/success.dart';
 import 'package:impots_benin/useful/colors.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:impots_benin/global.dart';
+
+Future<bool> registerUser(String email, String password, String phone) async {
+  final url = Uri.parse('${Global.baseUrl}/register');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'email': email,
+      'numero': phone,
+      'password': password,
+    }),
+  );
+
+  if (response.statusCode == 201 || response.statusCode == 200) {
+    // Succès
+    return true;
+  } else {
+    // Affiche l’erreur dans la console pour debug
+    print('Erreur: ${response.body}');
+    return false;
+  }
+}
 
 class Inscription extends StatefulWidget {
   const Inscription({super.key});
@@ -244,40 +269,43 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                       SizedBox(height: 30),
 
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
                           setState(() {
                             _emailError = null;
                             _passwordError = null;
                             _phoneError = null;
                           });
 
-                          // Vérification des champs
-                          if (_emailController.text.isEmpty ||
-                              !_isEmailValid(_emailController.text)) {
-                            setState(() {
-                              _emailError = "Email invalide";
-                            });
+                          // Validations...
+                          if (_emailController.text.isEmpty || !_isEmailValid(_emailController.text)) {
+                            setState(() { _emailError = "Email invalide"; });
+                            return;
+                          }
+                          if (_phoneController.text.isEmpty || !_isPhoneValid(_phoneController.text)) {
+                            setState(() { _phoneError = "Numéro de téléphone invalide"; });
+                            return;
+                          }
+                          if (_passwordController.text.isEmpty || !_isPasswordValid(_passwordController.text)) {
+                            setState(() { _passwordError = "Le mot de passe doit contenir au moins 8 caractères"; });
                             return;
                           }
 
-                          if (_phoneController.text.isEmpty ||
-                              !_isPhoneValid(_phoneController.text)) {
-                            setState(() {
-                              _phoneError = "Numéro de téléphone invalide";
-                            });
-                            return;
-                          }
+                          // Appel API
+                          bool success = await registerUser(
+                            _emailController.text,
+                            _passwordController.text,
+                            _phoneController.text,
+                          );
 
-                          if (_passwordController.text.isEmpty ||
-                              !_isPasswordValid(_passwordController.text)) {
-                            setState(() {
-                              _passwordError = "Le mot de passe doit contenir au moins 8 caractères";
-                            });
-                            return;
+                          if (success) {
+                            // Redirige vers la page de succès
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Success()));
+                          } else {
+                            // Affiche une erreur à l’utilisateur
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Email ou mot de passe invalide. Veuillez réessayer.")),
+                            );
                           }
-
-                          // Si tout est valide, aller à la page suivante
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Success()));
                         },
                         child: ButtonComponent(
                           txtButton: "Confirmer",
@@ -285,6 +313,7 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                           textColor: Colors.white,
                         ),
                       ),
+
                       SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
