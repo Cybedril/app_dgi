@@ -3,27 +3,28 @@ import 'package:impots_benin/app/components/button_components.dart';
 import 'package:impots_benin/app/components/space.dart';
 import 'package:impots_benin/app/components/text_components.dart';
 import 'package:impots_benin/app/modules/pageEcheances/controller/controller.dart';
-import 'package:impots_benin/app/modules/pageSimulateur/view/questions_reponses.dart';
+import 'package:impots_benin/app/modules/pageSimulateur/unused/nature_impot.dart';
 import 'package:impots_benin/useful/colors.dart';
 
-class NatureImpot extends StatefulWidget {
-  const NatureImpot({super.key});
+class SecteurActivite extends StatefulWidget {
+  const SecteurActivite({super.key});
 
   @override
-  State<NatureImpot> createState() => _NatureImpotState();
+  State<SecteurActivite> createState() => _SecteurActiviteState();
 }
 
-class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin {
-  String? selectedNatureImpot;
+class _SecteurActiviteState extends State<SecteurActivite>
+    with TickerProviderStateMixin {
+  String? selectedSecteurActivite;
 
-  List<String> natureImpot = [
-    'Nature 1',
-    'Nature 2',
-    'Nature 3',
-    'Nature 4',
-    'Nature 5',
-    'Nature 6',
-    'Nature 7',
+  List<String> secteurActivite = [
+    'Secteur 1',
+    'Secteur 2',
+    'Secteur 3',
+    'Secteur 4',
+    'Secteur 5',
+    'Secteur 6',
+    'Secteur 7',
   ];
 
   late final List<AnimationController> _controllers = [];
@@ -34,7 +35,7 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
   void initState() {
     super.initState();
 
-    for (int i = 0; i < natureImpot.length; i++) {
+    for (int i = 0; i < secteurActivite.length; i++) {
       final controller = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 1500),
@@ -98,11 +99,11 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 70),
-                  ProgressBar(stepActuel: 2, stepActuel2: 1),
+                  ProgressBar(stepActuel: 1, stepActuel2: 0),
                   h(30),
                   Center(
                     child: TextComponents(
-                      txt: "Sélectionnez une nature d'impôt ",
+                      txt: "Veuillez choisir un secteur d'activité ",
                       fw: FontWeight.bold,
                       family: 'Bold',
                       txtSize: 17,
@@ -119,9 +120,9 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
           SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
             child: Column(
-              children: List.generate(natureImpot.length, (index) {
-                final secteur = natureImpot[index];
-                final isSelected = selectedNatureImpot == secteur;
+              children: List.generate(secteurActivite.length, (index) {
+                final secteur = secteurActivite[index];
+                final isSelected = selectedSecteurActivite == secteur;
 
                 return SlideTransition(
                   position: _animations[index],
@@ -132,7 +133,7 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
                       child: InkWell(
                         onTap: () {
                           setState(() {
-                            selectedNatureImpot = secteur;
+                            selectedSecteurActivite = secteur;
                           });
                         },
                         borderRadius: BorderRadius.circular(12),
@@ -161,7 +162,7 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
                                 horizontal: 16, vertical: 8),
                             leading: CircleAvatar(
                               backgroundColor: Colors.blue.shade100,
-                              child: Icon(Icons.account_balance, color: Colors.blue),
+                              child: Icon(Icons.work, color: Colors.blue),
                             ),
                             title: TextComponents(
                               txt: secteur,
@@ -170,11 +171,11 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
                             ),
                             trailing: Radio<String>(
                               value: secteur,
-                              groupValue: selectedNatureImpot,
+                              groupValue: selectedSecteurActivite,
                               activeColor: Colors.blue,
                               onChanged: (value) {
                                 setState(() {
-                                  selectedNatureImpot = value;
+                                  selectedSecteurActivite = value;
                                 });
                               },
                             ),
@@ -197,7 +198,7 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
                   context,
                   PageRouteBuilder(
                     transitionDuration: const Duration(milliseconds: 400),
-                    pageBuilder: (_, __, ___) => QuestionsReponses(),
+                    pageBuilder: (_, __, ___) => NatureImpot(),
                     transitionsBuilder: (_, animation, __, child) {
                       return ScaleTransition(
                         scale: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
@@ -207,6 +208,9 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
                   ),
                 );
               },
+
+
+
               child: ButtonComponent(
                 txtButton: 'Suivant',
                 buttonColor: mainColor,
@@ -216,7 +220,6 @@ class _NatureImpotState extends State<NatureImpot> with TickerProviderStateMixin
           ),
         ],
       ),
-
     );
   }
 }

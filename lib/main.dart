@@ -4,6 +4,16 @@ import 'package:impots_benin/app/components/text_components.dart';
 import 'package:impots_benin/app/modules/splash/view/splash.dart';
 import 'package:impots_benin/useful/colors.dart';
 import 'package:impots_benin/useful/constants.dart';
+import 'dart:io';
+
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 void main() {
   runApp(const MyApp());

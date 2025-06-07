@@ -88,27 +88,34 @@ class _FlitreState extends State<Flitre> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: backgroundApp,
-        elevation: 1,
-        centerTitle: true,
-        title: TextComponents(
-          txt: "Filtrer les obligations",
-          fw: FontWeight.bold,
-          family: "Bold",
-          txtSize: 20,
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.filter_list, color: mainColor),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: Column(
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: SafeArea(
+      child: Column(
         children: [
-          const SizedBox(height: 10),
+          // Barre supérieure avec titre
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 25, 16, 10),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.black87),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                const SizedBox(width: 10),
+                TextComponents(
+                  txt: "Filtrer les obligations",
+                  fw: FontWeight.bold,
+                  family: "Bold",
+                  txtSize: 20,
+                  color: Colors.black87,
+                ),
+              ],
+            ),
+          ),
+
+          // Filtre par catégorie
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Align(
@@ -118,12 +125,13 @@ class _FlitreState extends State<Flitre> {
                 fw: FontWeight.w600,
                 family: "Bold",
                 txtSize: 17,
+                color: Colors.black87,
               ),
             ),
           ),
           const SizedBox(height: 10),
           SizedBox(
-            height: 50,
+            height: 45,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -157,11 +165,11 @@ class _FlitreState extends State<Flitre> {
             ),
           ),
           const SizedBox(height: 20),
+
+          // Liste des obligations
           Expanded(
             child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
+                ? const Center(child: CircularProgressIndicator())
                 : obligations.isEmpty
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -182,19 +190,25 @@ class _FlitreState extends State<Flitre> {
                           final obligation = obligations[index];
                           return Card(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            elevation: 2,
+                            color: Colors.grey[100],
+                            elevation: 0,
                             child: ListTile(
-                              contentPadding: const EdgeInsets.all(12),
+                              contentPadding: const EdgeInsets.all(14),
                               title: Text(
                                 obligation.name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
+                                  color: Colors.black87,
                                 ),
                               ),
-                              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+                              subtitle: Text(
+                                obligation.type ?? '',
+                                style: const TextStyle(fontSize: 13, color: Colors.black54),
+                              ),
+                              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Colors.black54),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -218,6 +232,8 @@ class _FlitreState extends State<Flitre> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

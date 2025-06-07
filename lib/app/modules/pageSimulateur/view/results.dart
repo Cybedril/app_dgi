@@ -56,32 +56,35 @@ class _ResultsState extends State<Results> {
       body: Padding(
         padding: const EdgeInsets.only(right: 20, left: 20),
         child: Center(
-            child: Column(
-                children: [
-                  Image.asset("assets/images/Tax-amico.png", scale: 7 ,),
-                  h(40),
-                  InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: const Duration(milliseconds: 400),
-                            pageBuilder: (_, __, ___) => Finalisation(),
-                            transitionsBuilder: (_, animation, __, child) {
-                              return ScaleTransition(
-                                scale: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-                                child: child,
-                              );
-                            },
-                          ),
+          child: Column(
+            children: [
+              Image.asset(
+                "assets/images/Tax-amico.png",
+                scale: 7,
+              ),
+              h(40),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 400),
+                      pageBuilder: (_, __, ___) => Finalisation(montantFinal: 12345), // <-- ici la correction
+                      transitionsBuilder: (_, animation, __, child) {
+                        return ScaleTransition(
+                          scale: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+                          child: child,
                         );
                       },
-
-                      child: ButtonComponent(txtButton: 'Calculer', buttonColor: mainColor, textColor: Colors.white))
-                ]
-
-            ),
+                    ),
+                  );
+                },
+                child: ButtonComponent(
+                    txtButton: 'Calculer', buttonColor: mainColor, textColor: Colors.white),
+              ),
+            ],
           ),
+        ),
       ),
     );
   }

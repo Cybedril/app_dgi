@@ -4,19 +4,20 @@ import 'package:impots_benin/app/components/space.dart';
 import 'package:impots_benin/app/components/text_components.dart';
 import 'package:impots_benin/app/modules/pageAccueil/view/pageAccueil.dart';
 import 'package:impots_benin/useful/colors.dart';
+import 'package:impots_benin/app/modules/pageSimulateur/view/pageSimulateur.dart';
 import 'package:intl/intl.dart';
 import 'package:confetti/confetti.dart';
 import 'package:lottie/lottie.dart';
 
 class Finalisation extends StatefulWidget {
-  const Finalisation({super.key});
+  final int montantFinal;
+  const Finalisation({Key? key, required this.montantFinal}) : super(key: key);
 
   @override
   State<Finalisation> createState() => _FinalisationState();
 }
 
 class _FinalisationState extends State<Finalisation> with SingleTickerProviderStateMixin {
-  final int montantFinal = 2340500;
   late ConfettiController _confettiController;
   bool showButton = false;
   late AnimationController _animationController;
@@ -27,7 +28,7 @@ class _FinalisationState extends State<Finalisation> with SingleTickerProviderSt
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 3));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _confettiController.play(); // Lancer après le rendu
+      _confettiController.play();
     });
 
     _animationController = AnimationController(
@@ -40,7 +41,7 @@ class _FinalisationState extends State<Finalisation> with SingleTickerProviderSt
       curve: Curves.easeIn,
     );
 
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         showButton = true;
         _animationController.forward();
@@ -57,6 +58,7 @@ class _FinalisationState extends State<Finalisation> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final montantFinal = widget.montantFinal;
     return Scaffold(
       body: Stack(
         alignment: Alignment.topCenter,
@@ -96,22 +98,18 @@ class _FinalisationState extends State<Finalisation> with SingleTickerProviderSt
                         fit: BoxFit.contain,
                         repeat: false,
                       ),
-                      h(40),
-                      TextComponents(
-                        txt: "Estimation terminée !",
-                        fw: FontWeight.bold,
-                        txtSize: 22,
-                        family: "Bold",
+                      const SizedBox(height: 40),
+                      const Text(
+                        "Estimation terminée !",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
-                      h(10),
-                      TextComponents(
-                        txt: "Le montant estimé est de :",
-                        txtSize: 16,
-                        fw: FontWeight.w500,
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Le montant estimé est de :",
+                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                         textAlign: TextAlign.center,
-                        family: "Regular",
                       ),
-                      h(15),
+                      const SizedBox(height: 15),
                       TweenAnimationBuilder<double>(
                         duration: const Duration(seconds: 5),
                         tween: Tween(begin: 0.0, end: montantFinal.toDouble()),
@@ -128,31 +126,50 @@ class _FinalisationState extends State<Finalisation> with SingleTickerProviderSt
                           );
                         },
                       ),
-                      h(30),
-                      if (showButton)
-                        FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => Pageaccueil()),
-                              );
-                            },
-                            child: ButtonComponent(
-                              txtButton: "Terminer",
-                              buttonColor: mainColor,
-                              textColor: Colors.white,
-                            ),
+                      const SizedBox(height: 30),
+                     if (showButton)
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: mainColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                          ),
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Pageaccueil()),
+                              (route) => false,
+                            );
+                          },
+                          child: const Text(
+                            "Terminer",
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
                         ),
+                      ),
+
                     ],
                   ),
                 ),
               ),
             ),
           ),
-
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple],
+              emissionFrequency: 0.05,
+              numberOfParticles: 20,
+              maxBlastForce: 20,
+              minBlastForce: 10,
+              gravity: 0.1,
+            ),
+          )
         ],
       ),
     );

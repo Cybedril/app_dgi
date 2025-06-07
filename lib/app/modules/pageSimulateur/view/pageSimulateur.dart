@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:impots_benin/app/components/button_components.dart';
 import 'package:impots_benin/app/components/space.dart';
 import 'package:impots_benin/app/components/text_components.dart';
-import 'package:impots_benin/app/modules/pageSimulateur/view/secteur_activite.dart';
+import 'package:impots_benin/app/modules/pageSimulateur/unused/secteur_activite.dart';
 import 'package:impots_benin/useful/colors.dart';
+import 'package:impots_benin/app/modules/pageSimulateur/view/pageSimulation.dart';
+
 
 class Pagesimulateur extends StatefulWidget {
   const Pagesimulateur({super.key});
@@ -62,7 +64,7 @@ class _PagesimulateurState extends State<Pagesimulateur> {
               h(35),
               InkWell(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SecteurActivite(),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => SimulationPatrimoinePage(),));
                   },
                   child: ButtonComponent(txtButton: 'Continuer', buttonColor: mainColor, textColor: Colors.white))
             ],
