@@ -16,6 +16,7 @@ import 'package:impots_benin/app/modules/pageEcheances/view/pageEcheances.dart';
 import 'package:impots_benin/app/modules/pageParametres/view/pageParametres.dart';
 import 'package:impots_benin/app/modules/pageSimulateur/view/pageSimulateur.dart';
 import 'package:impots_benin/app/modules/pageAccueil/view/page_detail_obligation.dart';
+import 'package:impots_benin/app/modules/notification/view/pageNotification.dart';
 
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -308,7 +309,13 @@ class _PageaccueilContentState extends State<PageaccueilContent> {
                               color: Colors.black87,
                               size: 27,
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const PageNotifications()),
+                            );
+                          },
+
                           ),
                         ),
                       ],
