@@ -13,15 +13,17 @@ class Inscription extends StatefulWidget {
   State<Inscription> createState() => _InscriptionState();
 }
 
-class _InscriptionState extends State<Inscription> with SingleTickerProviderStateMixin {
+class _InscriptionState extends State<Inscription>
+    with SingleTickerProviderStateMixin {
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _phoneFocus = FocusNode();
   bool _obscurePassword = true;
 
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -29,6 +31,7 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
 
   String? _emailError;
   String? _passwordError;
+  String? _confirmPasswordError;
   String? _phoneError;
 
   @override
@@ -40,9 +43,8 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
       duration: Duration(milliseconds: 700),
     );
 
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
+    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.2), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
 
@@ -55,20 +57,15 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
     super.dispose();
   }
 
-  // Validation email avec regex
   bool _isEmailValid(String email) {
-    String pattern =
-        r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$";
-    RegExp regExp = RegExp(pattern);
-    return regExp.hasMatch(email);
+    String pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$";
+    return RegExp(pattern).hasMatch(email);
   }
 
-  // Validation mot de passe
   bool _isPasswordValid(String password) {
     return password.length >= 8;
   }
 
-  // Validation numéro de téléphone
   bool _isPhoneValid(String phone) {
     return phone.length == 10 && RegExp(r'^[0-9]+$').hasMatch(phone);
   }
@@ -137,7 +134,7 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
               ),
             ),
             child: Padding(
-              padding: EdgeInsets.all(40),
+              padding: EdgeInsets.all(30),
               child: SlideTransition(
                 position: _slideAnimation,
                 child: FadeTransition(
@@ -171,7 +168,7 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                             style: TextStyle(color: Colors.red, fontSize: 12),
                           ),
                         ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 20),
 
                       // Numéro de téléphone
                       TextFormField(
@@ -203,7 +200,7 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                             style: TextStyle(color: Colors.red, fontSize: 12),
                           ),
                         ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 20),
 
                       // Mot de passe
                       TextFormField(
@@ -211,7 +208,7 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                         focusNode: _passwordFocus,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
-                          labelText: "Mot De Passe",
+                          labelText: "Mot de passe",
                           floatingLabelBehavior: FloatingLabelBehavior.auto,
                           labelStyle: TextStyle(color: Colors.grey),
                           suffixIcon: IconButton(
@@ -241,6 +238,43 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                             style: TextStyle(color: Colors.red, fontSize: 12),
                           ),
                         ),
+                      SizedBox(height: 20),
+
+                      // Confirmation mot de passe
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: _obscurePassword,
+                        decoration: InputDecoration(
+                          labelText: "Confirmer le mot de passe",
+                          floatingLabelBehavior: FloatingLabelBehavior.auto,
+                          labelStyle: TextStyle(color: Colors.grey),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                      if (_confirmPasswordError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _confirmPasswordError!,
+                            style: TextStyle(color: Colors.red, fontSize: 12),
+                          ),
+                        ),
                       SizedBox(height: 30),
 
                       InkWell(
@@ -248,36 +282,42 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                           setState(() {
                             _emailError = null;
                             _passwordError = null;
+                            _confirmPasswordError = null;
                             _phoneError = null;
                           });
 
-                          // Vérification des champs
-                          if (_emailController.text.isEmpty ||
-                              !_isEmailValid(_emailController.text)) {
+                          if (_emailController.text.isEmpty || !_isEmailValid(_emailController.text)) {
                             setState(() {
                               _emailError = "Email invalide";
                             });
                             return;
                           }
 
-                          if (_phoneController.text.isEmpty ||
-                              !_isPhoneValid(_phoneController.text)) {
+                          if (_phoneController.text.isEmpty || !_isPhoneValid(_phoneController.text)) {
                             setState(() {
                               _phoneError = "Numéro de téléphone invalide";
                             });
                             return;
                           }
 
-                          if (_passwordController.text.isEmpty ||
-                              !_isPasswordValid(_passwordController.text)) {
+                          if (_passwordController.text.isEmpty || !_isPasswordValid(_passwordController.text)) {
                             setState(() {
                               _passwordError = "Le mot de passe doit contenir au moins 8 caractères";
                             });
                             return;
                           }
 
-                          // Si tout est valide, aller à la page suivante
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Success()));
+                          if (_confirmPasswordController.text != _passwordController.text) {
+                            setState(() {
+                              _confirmPasswordError = "Les mots de passe ne correspondent pas";
+                            });
+                            return;
+                          }
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => Success()),
+                          );
                         },
                         child: ButtonComponent(
                           txtButton: "Confirmer",
@@ -297,7 +337,10 @@ class _InscriptionState extends State<Inscription> with SingleTickerProviderStat
                           ),
                           InkWell(
                             onTap: () {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Connexion(),));
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => Connexion()),
+                              );
                             },
                             child: TextComponents(
                               txt: "Connectez-vous",

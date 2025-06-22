@@ -16,7 +16,7 @@ class Finalisation extends StatefulWidget {
 }
 
 class _FinalisationState extends State<Finalisation> with SingleTickerProviderStateMixin {
-  final int montantFinal = 2340500;
+  final int montantFinal = 340500;
   late ConfettiController _confettiController;
   bool showButton = false;
   late AnimationController _animationController;

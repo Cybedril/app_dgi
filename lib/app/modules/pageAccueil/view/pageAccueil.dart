@@ -44,7 +44,7 @@ class _PageaccueilState extends State<Pageaccueil> {
             color: backgroundApp,
             child: _pages[_currentPage],
           ),
-          if (_currentPage == 0) // Affichage du bouton uniquement sur la page d'accueil
+          if (_currentPage == 0)
             Positioned(
               bottom: 20,
               right: 20,
@@ -300,14 +300,7 @@ class _PageaccueilContentState extends State<PageaccueilContent> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                TextComponents(
-                  txt: "Obligation 1",
-                  txtSize: 18,
-                  color: mainColor,
-                  family: "Bold",
-                  fw: FontWeight.bold,
-                ),
+
                 const SizedBox(height: 20),
                 AnimationLimiter(
                   child: Column(
@@ -321,7 +314,7 @@ class _PageaccueilContentState extends State<PageaccueilContent> {
                             child: Column(
                               children: [
                                 ObligationListComponent(
-                                  txt: "Obligation 1-${index + 1}",
+                                  txt: "Obligation ${index + 1 }",
                                   imageAsset: 'assets/images/right.png',
                                 ),
                                 const SizedBox(height: 10),
