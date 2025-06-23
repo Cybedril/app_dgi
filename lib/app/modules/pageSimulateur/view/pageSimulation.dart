@@ -257,7 +257,7 @@ class _SimulationPatrimoinePageState extends State<SimulationPatrimoinePage> {
           title: TextComponents(
             txt: simulationType == null
                 ? "Choisissez une simulation"
-                : "Simulation ${simulationType == 'patrimoine' ? 'Patrimoine' : 'Impôt sur le revenu'}",
+                : " ${simulationType == 'patrimoine' ? 'patrimoine' : 'Impôt sur le revenu'}",
             fw: FontWeight.bold,
             txtSize: 18,
             color: Colors.white,
@@ -277,7 +277,7 @@ class _SimulationPatrimoinePageState extends State<SimulationPatrimoinePage> {
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 children: [
                   simulationChoiceCard(
-                    "Simulation Patrimoine",
+                    "Simulation Impôt sur le Patrimoine",
                     "Simulez vos impôts liés au patrimoine (véhicules, armes, etc.)",
                     'patrimoine',
                   ),
