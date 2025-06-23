@@ -29,7 +29,7 @@ class _SimulationPatrimoinePageState extends State<SimulationPatrimoinePage> {
   List<Map<String, dynamic>> history = [];
 
   // Couleurs harmonisées
-  final Color primaryColor = const Color(0xFF4A90E2); // Bleu doux
+  final Color primaryColor = Color(0xff073582); // Bleu doux
   final Color secondaryColor = const Color(0xFF50E3C2); // Vert pastel
   final Color backgroundColor = const Color(0xFFF5F7FA); // Gris très clair doux
   final Color cardColor = Colors.white;
