@@ -44,21 +44,29 @@ class _MessageriechatbotState extends State<Messageriechatbot> {
         body: jsonEncode({"question": text}),
       );
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
+      print('Status: ${response.statusCode}');
+      print('Body: "${response.body}"');
+
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
         String botResponse;
 
-        if (decoded is List &&
-            decoded.isNotEmpty &&
-            decoded[0] is Map &&
-            decoded[0].containsKey('output')) {
-          botResponse = decoded[0]['output'];
-        } else if (decoded is Map && decoded.containsKey('answer')) {
-          botResponse = decoded['answer'];
-        } else if (decoded is String) {
-          botResponse = decoded;
-        } else {
-          botResponse = "Réponse inattendue du serveur.";
+        try {
+          final decoded = jsonDecode(response.body);
+
+          if (decoded is List &&
+              decoded.isNotEmpty &&
+              decoded[0] is Map &&
+              decoded[0].containsKey('output')) {
+            botResponse = decoded[0]['output'];
+          } else if (decoded is Map && decoded.containsKey('answer')) {
+            botResponse = decoded['answer'];
+          } else if (decoded is String) {
+            botResponse = decoded;
+          } else {
+            botResponse = "Réponse inattendue du serveur.";
+          }
+        } catch (e) {
+          botResponse = "Impossible de lire la réponse du serveur.";
         }
 
         setState(() {

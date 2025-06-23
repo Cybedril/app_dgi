@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 
 import 'package:impots_benin/app/components/text_components.dart';
 import 'package:impots_benin/useful/colors.dart';
@@ -63,14 +64,27 @@ class _QuittancetvmState extends State<Quittancetvm> {
 
       if (response.statusCode == 200) {
         final bytes = response.bodyBytes;
-        final directory = await getApplicationDocumentsDirectory();
-        final filePath = '${directory.path}/quittance_$immat$annee.pdf';
 
+        Directory directory;
+
+        if (Platform.isAndroid || Platform.isIOS) {
+          directory = await getApplicationDocumentsDirectory();
+        } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+          final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '.';
+          directory = Directory('$home/Downloads');
+        } else {
+          directory = await getApplicationDocumentsDirectory();
+        }
+
+        final filePath = '${directory.path}/quittance_${immat}_$annee.pdf';
         final file = File(filePath);
         await file.writeAsBytes(bytes);
 
         print('PDF sauvegardé localement: $filePath');
         _showResultDialog('PDF sauvegardé ici :\n$filePath');
+
+        // Ouvre le fichier PDF
+        await OpenFile.open(filePath);
       } else {
         _showErrorDialog('Erreur API: code ${response.statusCode}');
       }
